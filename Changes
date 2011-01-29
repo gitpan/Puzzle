@@ -1,0 +1,9 @@
+Revision history for Perl extension Puzzle.
+
+0.02  Sat Jan 29 20:47:11 CET 2011
+ 	- first public distribution.
+
+0.01  Mon Dec  6 11:42:05 2010
+	- original version; created by h2xs 1.23 with options
+		-AXc -n Puzzle
+
