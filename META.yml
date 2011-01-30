@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Puzzle
-version:            0.03
+version:            0.04
 abstract:           A Web framework 
 author:
     - Emiliano Bruni <info@ebruni.it>

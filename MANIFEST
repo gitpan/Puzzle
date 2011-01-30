@@ -19,6 +19,7 @@ lib/Puzzle/Utility.pm
 lib/Puzzle/Block.pm  
 lib/Puzzle/Core.pm    
 lib/Puzzle/Page.pm    
+lib/Puzzle/Request.pm    
 lib/Puzzle/Template.pm
 lib/Puzzle/DBIx/Column.pm
 lib/Puzzle/DBIx/Iterator.pm

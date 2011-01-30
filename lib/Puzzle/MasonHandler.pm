@@ -7,7 +7,7 @@ use HTML::Mason::ApacheHandler();
 use strict;
 
 {
-	package HTML::Mason::Commands;
+	package Puzzle::Request;
 	use Apache2::Request;
 	use Apache2::Cookie;
 	use Apache::DBI;
@@ -18,14 +18,6 @@ use strict;
 
 my %ah;
 
-# impostare error_mode a fatal su siti in produzione, a output per siti
-# in sviluppo
-#my $error_mode		= 'output'; # 'output'|'fatal'
-# impostare a zero per far verificare a Mason il timestamp dei file
-# e aggiornare quelli modificati. Con questo parametro ad 1 le modifiche
-# agli script non vengono viste se non rebootando il server www
-#my $static_source	= 0; # 0|1
-
 sub params 		{return 	( 
 						args_method			=> 'mod_perl',
               			comp_root			=> "/www/$_[0]/www",
@@ -33,6 +25,7 @@ sub params 		{return 	(
 						code_cache_max_size	=> 0,
 						autoflush 			=> 0,
 						dhandler_name 		=> 'dhandler.mpl',
+						request_class		=> 'Puzzle::Request',
 )};
 
 sub handler {

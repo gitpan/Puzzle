@@ -1,5 +1,11 @@
 Revision history for Perl extension Puzzle.
 
+0.04  Mon Jan 31 00:35:12 CET 2011
+	- When uploaded previous version to CPAN we found that CPAN found a conflict
+		in local package HTML::Mason::Cammands. To avoid we create a simple 
+		replacement to HTML::Mason::Request and use this as local package in
+		Puzzle::MasonHandler
+
 0.03  Sun Jan 30 23:38:10 CET 2011
     - BREAK COMPATIBILITY. Now, in your template, the content of the loaded
 		page must be called "%frame_center%" where you have "%body%"
