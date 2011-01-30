@@ -3,6 +3,8 @@ Makefile.PL
 MANIFEST
 README
 INSTALL
+samples/js/debug.js
+samples/js/debug.css
 t/Puzzle.t
 lib/Puzzle/Args.pm   
 lib/Puzzle/Config.pm  

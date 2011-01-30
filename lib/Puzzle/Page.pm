@@ -60,11 +60,11 @@ sub process {
 		$self->center->comp_path($puzzle->cfg->login);
 		$self->center->process_as_login;
 	}
-	if ($puzzle->cfg->cornice && 
+	if ($puzzle->cfg->frames && 
 		$puzzle->args->print ne '1' && $puzzle->cfg->base) {
 		foreach (qw/top left right bottom/) {
-			if ($puzzle->cfg->{"frame_$_"} ne '') {
-				$self->$_->comp_path($puzzle->cfg->{"frame_$_"});
+			if ($puzzle->cfg->{"frame_${_}_file"} ne '') {
+				$self->$_->comp_path($puzzle->cfg->{"frame_${_}_file"});
 				$self->$_->process;
 			}
 		}
