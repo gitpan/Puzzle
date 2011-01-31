@@ -81,7 +81,7 @@ sub _init {
 
 sub _autohandler_once {
 	my $self	= shift;
-	my $session_class = 'Puzzle::SessionFake';
+	my $session_class = 'Puzzle::Session::Fake';
 	$Apache::Request::Redirect::LOG = 0;
 	if ($self->cfg->db->{enabled}) {
 		$Apache::Session::Store::DBI::TableName = $self->cfg->db->{session_table};

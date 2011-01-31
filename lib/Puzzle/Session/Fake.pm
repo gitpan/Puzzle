@@ -1,4 +1,4 @@
-package Puzzle::SessionFake;
+package Puzzle::Session::Fake;
 
 our $VERSION = '0.01';
 

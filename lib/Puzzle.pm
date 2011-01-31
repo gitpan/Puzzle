@@ -1,6 +1,6 @@
 package Puzzle;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 use base 'Puzzle::Core';
 
@@ -24,9 +24,9 @@ In httpd.conf or virtual host configuration file
       SetHandler  perl-script
       PerlHandler Puzzle::MasonHandler
     </FilesMatch>
-    <LocationMatch "(\.mplcom|handler|\.htt)$|autohandler">
-      SetHandler  perl-script
-      PerlInitHandler Apache2::Const::HTTP_NOT_FOUND
+    <LocationMatch "(\.mplcom|handler|\.htt|\.yaml)$|autohandler">
+      Order deny,allow 
+      Deny from All
     </LocationMatch>
   </IfModule>
 
@@ -60,9 +60,9 @@ in your document root, a config.yaml like this
   #traslation:
   #it:           "YourNameSpace::Lang::it"
   #default:      it
-  mail:
-    server:       "your.mail.server"
-    from:         "your@email-address"
+  #mail:
+  #  server:       "your.mail.server"
+  #  from:         "your@email-address"
 
 in your document root, a Mason autohandler file like this
 

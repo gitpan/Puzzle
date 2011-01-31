@@ -3,8 +3,9 @@ Makefile.PL
 MANIFEST
 README
 INSTALL
-samples/js/debug.js
-samples/js/debug.css
+misc/js/debug.js
+misc/js/debug.css
+misc/setup/puzzle_setup.pl
 t/Puzzle.t
 lib/Puzzle.pm   
 lib/Puzzle/Args.pm   
@@ -16,7 +17,6 @@ lib/Puzzle/Post.pm
 lib/Puzzle/MasonHandler.pm
 lib/Puzzle/Sendmail.pm  
 lib/Puzzle/Session.pm   
-lib/Puzzle/SessionFake.pm   
 lib/Puzzle/Utility.pm
 lib/Puzzle/Block.pm  
 lib/Puzzle/Core.pm    
@@ -31,4 +31,5 @@ lib/Puzzle/Lang/Manager.pm
 lib/Puzzle/Sendmail/MultiPartItem.pm
 lib/Puzzle/Session/Auth.pm
 lib/Puzzle/Session/User.pm
+lib/Puzzle/Session/Fake.pm   
 META.yml                                 Module meta-data (added by MakeMaker)

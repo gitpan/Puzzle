@@ -26,7 +26,8 @@ BEGIN {
 		db			      => { parse => 'hash',  type => HASHREF},
 		traslation    => { parse => 'hash',  type => HASHREF, optional => 1},
 		page		  => { parse => 'hash',  type => HASHREF | UNDEF, optional => 1},
-		mail		      => { parse => 'hash',  type => HASHREF},
+		mail		      => { parse => 'hash',  type => HASHREF, optional => 1,
+									default => {server => '', from => ''} },
 	);
 }
 
