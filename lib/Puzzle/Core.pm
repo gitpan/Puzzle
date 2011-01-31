@@ -1,6 +1,6 @@
 package Puzzle::Core;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 use 5.008008;
 use strict;
@@ -16,7 +16,7 @@ use base 'Class::Container';
 
 __PACKAGE__->valid_params(
 	cfg_path			=> { parse 	=> 'string', type => SCALAR},
-	session				=> { isa 		=> 'Puzzle::Session' },
+	session				=> { isa 		=> 'Puzzle::Session', optional => 1 },
 	lang_manager	=> { isa 		=> 'Puzzle::Lang::Manager' },
 	cfg						=> { isa 		=> 'Puzzle::Config'} ,
 	tmpl					=> { isa 		=> 'Puzzle::Template'} ,
@@ -27,7 +27,7 @@ __PACKAGE__->valid_params(
 );
 
 __PACKAGE__->contained_objects (
-	session    		=> 'Puzzle::Session',
+	session    		=> {class => 'Puzzle::Session', delayed => 1},
 	lang_manager	=> 'Puzzle::Lang::Manager',
 	cfg						=> 'Puzzle::Config',
 	tmpl					=> 'Puzzle::Template',
@@ -76,19 +76,24 @@ sub _init {
 		$center_class = $self->cfg->page->{center} if (exists $self->cfg->page->{center});
 	}
 	$self->{page} = $self->create_delayed_object('page',center_class => $center_class);
-	
-
 	$self->_autohandler_once;
 }
 
 sub _autohandler_once {
 	my $self	= shift;
-	$Apache::Session::Store::DBI::TableName = $self->cfg->db->{session_table};
+	my $session_class = 'Puzzle::SessionFake';
 	$Apache::Request::Redirect::LOG = 0;
-	my $dbi = 'dbi:mysql:database=' . $self->cfg->db->{name} . 
-		';host=' . $self->cfg->db->{host};
-	$self->{dbh} 	||= new Puzzle::DBI($dbi,$self->cfg->db->{username},
-		$self->cfg->db->{password});
+	if ($self->cfg->db->{enabled}) {
+		$Apache::Session::Store::DBI::TableName = $self->cfg->db->{session_table};
+		my $dbi = 'dbi:mysql:database=' . $self->cfg->db->{name} . 
+			';host=' . $self->cfg->db->{host};
+		$self->{dbh} 	||= new Puzzle::DBI($dbi,$self->cfg->db->{username},
+			$self->cfg->db->{password});
+		$session_class = 'Puzzle::Session';
+	}
+	# alter session class
+	$self->{container}->{contained}->{session}->{class} = $session_class;
+	$self->{session} = $self->create_delayed_object('session');
 }
 
 sub process_request{
@@ -125,7 +130,8 @@ sub process_request{
 	}
 	print $html;
 	$self->session->save;
-	#$self->dbh->disconnect unless ($self->cfg->db->{persistent_db})
+	$self->dbh->storage->disconnect if ($self->cfg->db->{enabled} 
+		&& !$self->cfg->db->{persistent_connection});
 }
 
 sub _login_logout {
@@ -148,94 +154,15 @@ __END__
 
 =head1 NAME
 
-Puzzle - A Web framework 
+Puzzle::Core - The core elements of Puzzle module
 
 =head1 SYNOPSIS
 
-In httpd.conf or virtual host configuration file
-
-  <IfModule mod_perl.c>
-    AddType text/html .mpl
-    PerlSetVar ServerName "myservername"
-    <FilesMatch "\.mpl$">
-      SetHandler  perl-script
-      PerlHandler Puzzle::MasonHandler
-    </FilesMatch>
-    <LocationMatch "(\.mplcom|handler|\.htt)$|autohandler">
-      SetHandler  perl-script
-      PerlInitHandler Apache2::Const::HTTP_NOT_FOUND
-    </LocationMatch>
-  </IfModule>
-
-in your document root, a config.yaml like this
-
-  frames:           0
-  base:              ~
-  frame_bottom_file: ~
-  frame_left_file:   ~
-  frame_right_file:  ~
-  frame_top_file:    ~
-  # you MUST CHANGE auth component because this is a trivial auth controller
-  # auth_class:   "Puzzle::Session::Auth"
-  # auth_class:   "YourNameSpace::Auth"
-  gids:
-                - everybody
-  login:        /login.mpl
-  namespace:    cov
-  description:  ""
-  keywords:     ""
-  debug:        1
-  cache:        0
-  db:
-    username:               your_username
-    password:               your_password
-    host:                   your_hosts
-    name:                   your_db_name
-    session_table:          sysSessions
-    persistent_connection:  0
-  #traslation:
-  #it:           "YourNameSpace::Lang::it"
-  #default:      it
-  mail:
-    server:       "your.mail.server"
-    from:         "your@email-address"
-
-in your document root, a Mason autohandler file like this
-
-  <%once>
-    use Puzzle::Core;
-    use abc;
-  </%once>
-  <%init>
-    $abc::puzzle ||= new Puzzle::Core(cfg_path => $m->interp->comp_root
-	  .  '/config.yaml';
-    $abc::dbh = $abc::puzzle->dbh;
-    $abc::puzzle->process_request;
-  </%init>
-
-an abc module in your @ISA path
-
-  package abc;
-
-  our $puzzle;
-  our $dbh;
-
-  1;
-
-
+See L<Puzzle> documentation.
 
 =head1 DESCRIPTION
 
-Puzzle is a web framework based on HTML::Mason, HTML::Template::Pro with
-direct support to dabatase connection via DBIx::Class. It include a
-template system, a session user tracking and a simple authentication and
-authorization login access for users with groups and privileges.
-
-=head1 SEE ALSO
-
-For update information and more help about this framework take a look to:
-
-http://code.google.com/p/puzzle-cpan/
+See L<Puzzle> documentation.
 
 =head1 AUTHOR
 

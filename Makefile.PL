@@ -44,10 +44,10 @@ unless ($mod_version) {
 
 WriteMakefile(
     NAME              => 'Puzzle',
-    VERSION_FROM      => 'lib/Puzzle/Core.pm', # finds $VERSION
+    VERSION_FROM      => 'lib/Puzzle.pm', # finds $VERSION
     PREREQ_PM         => \%prereq,
-	LICENSE				=> 'gpl',
+	LICENSE				=> 'gpl2',
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
-      (ABSTRACT_FROM  => 'lib/Puzzle/Core.pm', # retrieve abstract from module
+      (ABSTRACT_FROM  => 'lib/Puzzle.pm', # retrieve abstract from module
        AUTHOR         => 'Emiliano Bruni <info@ebruni.it>') : ()),
 );

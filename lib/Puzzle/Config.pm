@@ -37,6 +37,15 @@ use HTML::Mason::MethodMaker(
 																											                     ]
 );
 
+sub new {
+    my $class   = shift;
+    my $self    = $class->SUPER::new(@_);
+	# compatibility with previous version where db connection
+	# was mandatory
+	$self->db->{enabled} = 1 unless exists $self->db->{enabled};
+    return $self;
+}
+
 sub as_hashref {
 	my $self = shift;
 	my %ret = map {$_ => $self->{$_}} keys(%{__PACKAGE__->allowed_params()});

@@ -6,6 +6,7 @@ INSTALL
 samples/js/debug.js
 samples/js/debug.css
 t/Puzzle.t
+lib/Puzzle.pm   
 lib/Puzzle/Args.pm   
 lib/Puzzle/Config.pm  
 lib/Puzzle/DBI.pm  
@@ -15,6 +16,7 @@ lib/Puzzle/Post.pm
 lib/Puzzle/MasonHandler.pm
 lib/Puzzle/Sendmail.pm  
 lib/Puzzle/Session.pm   
+lib/Puzzle/SessionFake.pm   
 lib/Puzzle/Utility.pm
 lib/Puzzle/Block.pm  
 lib/Puzzle/Core.pm    

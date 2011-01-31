@@ -1,5 +1,14 @@
 Revision history for Perl extension Puzzle.
 
+0.05  Mon Jan 31 15:21:49 CET 2011
+	- Now database connection is not a mandatory. You can use Puzzle without
+		a database connection configure db.enabled new config.yaml parameter
+		to 0. Default is 1 for compatibility mode.
+	- Logic for disconnecting to database has been included at the end of 
+		process_request according to enabled and persistent connection 
+		settings in config.yaml
+	- Add a placeholder Puzzle root namespace module.
+
 0.04  Mon Jan 31 00:35:12 CET 2011
 	- When uploaded previous version to CPAN we found that CPAN found a conflict
 		in local package HTML::Mason::Cammands. To avoid we create a simple 
