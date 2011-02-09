@@ -1,6 +1,6 @@
 package Puzzle::Block;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use Params::Validate qw(:types);
 use base 'Class::Container';
@@ -79,7 +79,9 @@ sub process_as_center {
 			$self->{isa_error} = 1;
 			return;
 		}
-	};
+	} else {
+		$self->{isa_error} = 0;
+	}
 	if( ($m->apache_req->content_type ne '' && 
 			lc($m->apache_req->content_type) ne 'text/html') 	
 			|| ($self->html =~/<[fF][Rr][Aa][Mm][Ee][Ss][Ee][Tt]/) )

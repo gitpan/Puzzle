@@ -1,6 +1,6 @@
 package Puzzle::Template;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use HTML::Template::Pro::Extension;
 use File::Spec;
@@ -119,7 +119,7 @@ use JSON::Any;
 use XML::Simple;
 
 sub printct {
-		print $_[0]->sprintct($_[1]);
+		print $_[0]->sprintct($_[1], $_[2]);
 }
 
 sub sprintct {
@@ -130,7 +130,7 @@ sub sprintct {
 		# supportato per ora, text, html, xml, json
 		#
 
-		my $ct = $self->container->_mason->apache_req->content_type;
+		my $ct = shift || $self->container->_mason->apache_req->content_type;
 
 		my $pl2html = sub { return Data::Dumper::Dumper($_[0]) };
 		my $pl2text = sub { return Data::Dumper::Dumper($_[0]) };

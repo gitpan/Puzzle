@@ -1,5 +1,12 @@
 Revision history for Perl extension Puzzle.
 
+
+0.07  Wed Feb  9 16:36:45 CET 2011
+	- Add an optional parameter to Puzzle::Template::printct and sprintct to force
+		return a serialize type also with another content-type to return, as an
+		example, a JSON structure also if content-type is text/html
+	- Removed a bug that makes it think there is a mason error when it's not true.
+
 0.06  Mon Jan 31 19:55:52 CET 2011
 	- Add a script to create folders and files minimum structure
 	- Change httpd.conf documentation to deny access to internal files
