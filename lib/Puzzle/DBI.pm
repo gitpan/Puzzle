@@ -1,10 +1,10 @@
 package Puzzle::DBI;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use base 'DBIx::Class::Schema';
 
-use Puzzle::Loader;
+use DBIx::Class::Schema::Loader;
 
 sub new {
     my $proto   = shift;
@@ -12,7 +12,7 @@ sub new {
 	my $dsn = shift;
 	my $user = shift;
 	my $password = shift;
-    my $s       = Puzzle::Loader->connect($dsn,$user,$password);
+    my $s       = DBIx::Class::Schema::Loader->connect($dsn,$user,$password);
     bless $s, $class;
     return $s;
 }
