@@ -88,7 +88,7 @@ sub _autohandler_once {
 		my $dbi = 'dbi:mysql:database=' . $self->cfg->db->{name} . 
 			';host=' . $self->cfg->db->{host};
 		$self->{dbh} 	||= new Puzzle::DBI($dbi,$self->cfg->db->{username},
-			$self->cfg->db->{password});
+			$self->cfg->db->{password}, $self->cfg->db->{schema});
 		$session_class = 'Puzzle::Session';
 	}
 	# alter session class

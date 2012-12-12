@@ -1,6 +1,6 @@
 package Puzzle::Block;
 
-our $VERSION = '0.03';
+our $VERSION = '0.11';
 
 use Params::Validate qw(:types);
 use base 'Class::Container';
@@ -47,7 +47,12 @@ sub process {
 	$tmpl->autoDeleteHeader(1);
 	$tmpl->tmplfile(\$self->html);
 	$self->body($tmpl->output);
-	$self->headers($tmpl->header_css . $tmpl->header_js);
+	my $headers = $tmpl->header_css . $tmpl->header_js;
+	# add meta refresh if present
+	my $metas = $tmpl->header_tokens->{meta};
+	my $metaf = q/http-equiv\s*=\s*"\s*refresh\s*"/;
+	map {($_->[0] =~ /$metaf/) && ($headers .= $_->[0])} @$metas;
+	$self->headers($headers);
 }
 
 sub process_as_center {

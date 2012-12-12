@@ -1,6 +1,6 @@
 package Puzzle;
 
-our $VERSION = '0.08';
+our $VERSION = '0.11';
 
 use base 'Puzzle::Core';
 
