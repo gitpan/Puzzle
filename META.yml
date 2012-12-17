@@ -29,6 +29,7 @@ requires:
   HTML::Entities: 0
   HTML::Mason: 0
   HTML::Template::Pro::Extension: 0
+  HTTP::BrowserDetect: 0
   I18N::AcceptLanguage: 0
   JSON::Any: 0
   Mail::Sendmail: 0
@@ -37,4 +38,4 @@ requires:
   XML::Simple: 0
   YAML: 0
   mod_perl2: 1.999022
-version: 0.11
+version: 0.12

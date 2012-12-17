@@ -1,6 +1,6 @@
 package Puzzle::Lang::Manager;
 
-our $VERSION = '0.02';
+our $VERSION = '0.12';
 
 use strict;
 no strict 'refs';
@@ -22,16 +22,14 @@ sub get_lang_obj {
 	$self->{lang_name}= $self->container->session->lang eq ''
 		? $self->browser
 		: $self->container->session->lang;
+	my $obj         = 'Puzzle::Lang::Base';
 	if (defined $self->container->cfg->traslation) {
 		if (exists $self->container->cfg->traslation->{$self->{lang_name}}) {
 			$obj = $self->container->cfg->traslation->{$self->{lang_name}};
-		} elsif (exists $self->container->cfg->traslation->{default}) {
+		} elsif (exists $self->container->cfg->traslation->{default} &&
+		exists $self->container->cfg->traslation->{$self->container->cfg->traslation->{default}}) {
 			$obj = $self->container->cfg->traslation->{$self->container->cfg->traslation->{default}};
-		} else {
-			$obj = 'Puzzle::Lang::Base';
 		}
-	} else {
-		$obj = 'Puzzle::Lang::Base';
 	}
 	(my $obj_path = $obj . '.pm') =~s/::/\//g ;
 	require $obj_path;
@@ -50,6 +48,7 @@ sub browser {
 		my $default = $self->container->cfg->traslation->{default} || 'en';
 		my $lang			= $acceptor->accepts($ENV{HTTP_ACCEPT_LANGUAGE}, \@defined_lang);
 		$acceptor->defaultLanguage($self->container->cfg->traslation->{default});
+		return $lang;
 	}
 }
 

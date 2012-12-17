@@ -1,6 +1,6 @@
 package Puzzle::Template;
 
-our $VERSION = '0.03';
+our $VERSION = '0.12';
 
 use HTML::Template::Pro::Extension;
 use File::Spec;
@@ -175,44 +175,66 @@ sub _tmplFilePath {
 	# and to base_dir and language
 	my $self			= shift;
 	my $mason			= shift;
-	#my $comp_name	= shift || $mason->callers(0)->name;
 	my $comp_name	= shift || $mason->current_comp->name;
 	my $abs_path;
-	#if ($self->absolute_path) {
-	#	# client request that the param it set is absolute...
-	#	# try only to see if exists a language version
-	#	$abs_path = $comp_name;
-	#} else {
-		# built absolute path
-		#my $base_root	= $self->{mason}->interp->resolver->comp_root; Mason before 1.30
-		my $base_root	= $mason->interp->comp_root;
-		my $tbp			= $self->{template_base_path} eq 'undef' ? '' :
-										$self->{template_base_path};
-		if (File::Spec->file_name_is_absolute($comp_name)) {
-			$abs_path	= File::Spec->catfile($base_root,$tbp,$comp_name);
-		} else {
-			#my $comp_dir=  $mason->callers(0)->path;
-			my $comp_dir=  $mason->current_comp->path;
-			(undef,$comp_dir,undef) = File::Spec->splitpath($comp_dir);
-			$abs_path	= File::Spec->catfile($base_root,$tbp,$comp_dir,$comp_name);
-		}
-	#}
+	# built absolute path
+	my $base_root	= $mason->interp->comp_root;
+	my $tbp			= $self->{template_base_path} eq 'undef' ? '' :
+									$self->{template_base_path};
+	if (File::Spec->file_name_is_absolute($comp_name)) {
+		$abs_path	= File::Spec->catfile($base_root,$tbp,$comp_name);
+	} else {
+		my $comp_dir=  $mason->current_comp->path;
+		(undef,$comp_dir,undef) = File::Spec->splitpath($comp_dir);
+		$abs_path	= File::Spec->catfile($base_root,$tbp,$comp_dir,$comp_name);
+	}
 	return $self->_tmplLang($abs_path);
 }
+
+use YAML qw(LoadFile);
 
 sub _tmplLang {
 	# try to see if exists file for language selected
 	my $self			= shift;
 	my $abs_path		= shift;
+	my $lang			= $self->{default_language};
 	my ($volume,$dirs,$file) = File::Spec->splitpath( $abs_path ); 
 	my ($fn,$ext) 		= split(/\./,$file);
-	my $file_lang		= $fn . '.' . $self->{default_language} . '.' . $ext;
-	my $path_lang		= File::Spec->catpath($volume,$dirs,$file_lang);
-	$path_lang			= File::Spec->canonpath($path_lang);
-	# return it if exists language file
-	return $path_lang if (-e $path_lang);
-	# else return the original after a cleanup
-	return File::Spec->canonpath($abs_path);
+
+	# check and load Yaml language file into page
+	my $yaml_path		= &_existsPath($volume,$dirs,$fn .  '.yaml');
+	if ($yaml_path) {
+		my $ts = LoadFile($yaml_path);
+		my %t  = map {$_ => $ts->{$_}->{$lang}} keys %$ts;
+		#my $n   = &_normalize_for_tmpl({t=>\%t});
+		#@{$args}{keys %$n} = values %$n;
+		$self->container->args->set("t.$_",$t{$_}) foreach (keys %t);
+	}
+
+	my $mobile 			= $self->_isMobile ? '.mobile' : '';
+
+	my $rfile;
+	$rfile				= &_existsPath($volume,$dirs,$fn.$mobile.'.'.$lang.'.'.$ext) unless ($yaml_path);
+	$rfile				= &_existsPath($volume,$dirs,$fn.$mobile.'.'.$ext)  unless ($rfile);
+	$rfile				= &_existsPath($volume,$dirs,$fn.'.'.$ext)  unless ($rfile);
+
+	return $rfile;
+}
+
+sub _existsPath {
+	my ($volume,$dirs,$file) = @_;
+	my $path = File::Spec->canonpath(File::Spec->catpath($volume,$dirs,$file));
+	return -e $path ? $path : undef;
+}
+
+use HTTP::BrowserDetect;
+
+sub _isMobile {
+	# detect if browser is mobile
+	my $self			= shift;
+	my $ua_string       = $ENV{'HTTP_USER_AGENT'};
+	my $bdetect         = new HTTP::BrowserDetect($ua_string);
+	return $bdetect->mobile;
 }
 
 sub _convFileName {

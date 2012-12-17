@@ -1,5 +1,9 @@
 Revision history for Perl extension Puzzle.
 
+0.12 Mon Dec 17 12:35:00 CET 2012
+	- Add support to detect mobile browser and support for .mobile.htt file
+	- Add support to yaml translation language file
+
 0.11 Wed Dec 12 10:50:30 CET 2012
 	- Add support for http-equiv="refresh" meta tag that now it's added in building page if present in a block
 
