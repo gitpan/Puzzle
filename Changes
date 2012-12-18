@@ -1,5 +1,9 @@
 Revision history for Perl extension Puzzle.
 
+0.13 Tue Dec 18 11:38:16 CET 2012
+	- All Mason parameters are now configurable by httpd.conf
+	- Solved a bug in language files.
+
 0.12 Mon Dec 17 12:35:00 CET 2012
 	- Add support to detect mobile browser and support for .mobile.htt file
 	- Add support to yaml translation language file

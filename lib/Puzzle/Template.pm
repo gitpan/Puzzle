@@ -1,6 +1,6 @@
 package Puzzle::Template;
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 use HTML::Template::Pro::Extension;
 use File::Spec;
@@ -65,11 +65,10 @@ sub print {
 sub sprint {
   my $self      = shift;
   my $args      = shift || {};
-  my $as = { %{$self->container->dbg->all_mason_args} ,%$args};
   my $tmpl_file_path  = shift || $self->container->_mason->current_comp->name;
   $tmpl_file_path   = $self->_convFileName($tmpl_file_path);
   # merging $c_args and items
-  my $html      = $self->html($as,$tmpl_file_path);
+  my $html      = $self->html($args,$tmpl_file_path);
   return $html  if (defined $html);
 }
 
@@ -82,16 +81,20 @@ sub html {
 	my $args = shift;
 	my $file = shift;
 
+	my $as = { %{$self->container->dbg->all_mason_args} ,%$args};
+
 	# define lang bypass cache
-	if (exists($args->{lang})) {
-		$self->{default_language} = $args->{lang};
+	if (exists($as->{lang})) {
+		$self->{default_language} = $as->{lang};
 	}
 	if (defined $file) {
 		my $mason	= $self->container->_mason;
 		my $file 	= $self->_tmplFilePath($mason,$file);
+		# _tmplFilePath could change all_mason_args
+		$as = { %{$self->container->dbg->all_mason_args} ,%$args};
 		if (-e $file) {
 			$self->SUPER::tmplfile($self->_getTextFile($file));
-			return $self->SUPER::html($args,undef);
+			return $self->SUPER::html($as,undef);
 		} else {
 			# template file don't exists...print error to client
 			$self->_throw_error_tmpl_notfound($file,$mason);
@@ -99,7 +102,7 @@ sub html {
 			return undef;
 		}
 	} else {
-		return $self->SUPER::html($args);
+		return $self->SUPER::html($as);
 	}
 }
 
