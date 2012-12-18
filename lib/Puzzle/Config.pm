@@ -1,6 +1,6 @@
 package Puzzle::Config;
 
-our $VERSION = '0.02';
+our $VERSION = '0.14';
 
 
 use Params::Validate qw(:types);;
@@ -17,6 +17,7 @@ BEGIN {
 		frame_left_file    => { parse => 'string',  type => SCALAR | UNDEF, default => undef },
 		frame_right_file   => { parse => 'string',  type => SCALAR | UNDEF, default => undef },
 		frame_bottom_file  => { parse => 'string',  type => SCALAR | UNDEF, default => undef },
+		exception_file  => { parse => 'string',  type => SCALAR | UNDEF, default => undef },
 		base          => { parse => 'string',  type => SCALAR | UNDEF, default => undef },
 		gids          => { parse => 'list',   type => ARRAYREF | UNDEF, default => qw/everybody/ },
 		login         => { parse => 'string',  type => SCALAR | UNDEF, default => undef },

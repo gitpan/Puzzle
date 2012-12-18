@@ -1,6 +1,6 @@
 package Puzzle::Lang::Manager;
 
-our $VERSION = '0.12';
+our $VERSION = '0.14';
 
 use strict;
 no strict 'refs';
@@ -10,22 +10,23 @@ use Params::Validate qw(:types);;
 use base 'Class::Container';
 use I18N::AcceptLanguage;
 
-use HTML::Mason::MethodMaker(
-	read_only 		=> [ qw(lang_name) ],
-);
+sub lang {
+	my $self		= shift;
+	return $self->container->session->lang eq ''
+			? $self->browser
+			: $self->container->session->lang;
+}
+
 
 sub get_lang_obj { 
 	# select language by session or browser and returnà
 	# the class istance related
 	my $self		= shift;
 	my $obj;
-	$self->{lang_name}= $self->container->session->lang eq ''
-		? $self->browser
-		: $self->container->session->lang;
 	my $obj         = 'Puzzle::Lang::Base';
 	if (defined $self->container->cfg->traslation) {
-		if (exists $self->container->cfg->traslation->{$self->{lang_name}}) {
-			$obj = $self->container->cfg->traslation->{$self->{lang_name}};
+		if (exists $self->container->cfg->traslation->{$self->lang}) {
+			$obj = $self->container->cfg->traslation->{$self->lang};
 		} elsif (exists $self->container->cfg->traslation->{default} &&
 		exists $self->container->cfg->traslation->{$self->container->cfg->traslation->{default}}) {
 			$obj = $self->container->cfg->traslation->{$self->container->cfg->traslation->{default}};

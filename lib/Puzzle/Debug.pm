@@ -1,6 +1,6 @@
 package Puzzle::Debug;
 
-our $VERSION = '0.02';
+our $VERSION = '0.14';
 
 use base 'Class::Container';
 
@@ -62,6 +62,8 @@ sub internal_objects_dump_for_html {
   return %debug
 }
 
+
+# TO DO : RECURSIVE AND REMOVE FROM DEBUG. OPTIMIZATION
 sub all_mason_args {
 	# ritorna tutti i parametri globali
 	# alcuni normalizzati
@@ -71,7 +73,7 @@ sub all_mason_args {
 			%{$puzzle->cfg->as_hashref}, 
 			%{&_normalize_for_tmpl(&_normalize_for_tmpl(&_normalize_for_tmpl($puzzle->session->internal_session)))},
 	  		%{&_normalize_for_tmpl($puzzle->post->args)},
-			%{&_normalize_for_tmpl($puzzle->args->args)}, 
+			%{&_normalize_for_tmpl(&_normalize_for_tmpl($puzzle->args->args))}, 
 			title => $puzzle->page->title,
 	};
 }
@@ -84,7 +86,7 @@ sub all_mason_args_for_debug {
 		conf => $self->container->cfg,
 		session =>&_normalize_for_tmpl(&_normalize_for_tmpl(&_normalize_for_tmpl($self->container->session->internal_session))),
     post 	=> &_normalize_for_tmpl($self->container->post->args) ,
-		args 	=> &_normalize_for_tmpl($self->container->args->args),
+		args 	=> &_normalize_for_tmpl(&_normalize_for_tmpl($self->container->args->args)),
 		env		=> 	\%ENV
 	};
 }

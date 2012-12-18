@@ -84,12 +84,11 @@ sub html {
 	my $as = { %{$self->container->dbg->all_mason_args} ,%$args};
 
 	# define lang bypass cache
-	if (exists($as->{lang})) {
-		$self->{default_language} = $as->{lang};
-	}
+	#if (exists($as->{lang})) {
+	#	$self->{default_language} = $as->{lang};
+	#}
 	if (defined $file) {
-		my $mason	= $self->container->_mason;
-		my $file 	= $self->_tmplFilePath($mason,$file);
+		my $file 	= $self->_tmplFilePath($file);
 		# _tmplFilePath could change all_mason_args
 		$as = { %{$self->container->dbg->all_mason_args} ,%$args};
 		if (-e $file) {
@@ -177,7 +176,7 @@ sub _tmplFilePath {
 	# convert the file path based on absolute/relative path
 	# and to base_dir and language
 	my $self			= shift;
-	my $mason			= shift;
+	my $mason			= $self->container->_mason;
 	my $comp_name	= shift || $mason->current_comp->name;
 	my $abs_path;
 	# built absolute path
@@ -200,18 +199,15 @@ sub _tmplLang {
 	# try to see if exists file for language selected
 	my $self			= shift;
 	my $abs_path		= shift;
-	my $lang			= $self->{default_language};
+	#my $lang			= $self->{default_language};
+	my $lang			= $self->container->lang_manager->lang;
 	my ($volume,$dirs,$file) = File::Spec->splitpath( $abs_path ); 
 	my ($fn,$ext) 		= split(/\./,$file);
 
 	# check and load Yaml language file into page
 	my $yaml_path		= &_existsPath($volume,$dirs,$fn .  '.yaml');
 	if ($yaml_path) {
-		my $ts = LoadFile($yaml_path);
-		my %t  = map {$_ => $ts->{$_}->{$lang}} keys %$ts;
-		#my $n   = &_normalize_for_tmpl({t=>\%t});
-		#@{$args}{keys %$n} = values %$n;
-		$self->container->args->set("t.$_",$t{$_}) foreach (keys %t);
+		$self->container->args->set($self->yamlArgs($yaml_path,$lang));
 	}
 
 	my $mobile 			= $self->_isMobile ? '.mobile' : '';
@@ -222,6 +218,29 @@ sub _tmplLang {
 	$rfile				= &_existsPath($volume,$dirs,$fn.'.'.$ext)  unless ($rfile);
 
 	return $rfile;
+}
+
+sub yamlArgs {
+	my $self			= shift;
+	my $yaml_path		= shift;
+	my $lang			= shift;
+	my $ts 				= LoadFile($yaml_path);
+	&_recursiveStructRemoveLang(\$ts,$lang);
+	return $ts;
+}
+
+sub _recursiveStructRemoveLang {
+	my $struct          = shift;
+	my $lang            = shift;
+
+	foreach my $key (keys %$$struct) {
+		if (ref($$struct->{$key}) eq 'HASH') {
+			_recursiveStructRemoveLang(\($$struct->{$key}),$lang);
+		} elsif ($key eq $lang) {
+			$$struct = $$struct->{$lang};
+			return;
+		} 
+	}
 }
 
 sub _existsPath {

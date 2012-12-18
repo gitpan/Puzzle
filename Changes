@@ -1,5 +1,11 @@
 Revision history for Perl extension Puzzle.
 
+0.14 Tue dic 18 18:21:18 CET 2012
+	- Add exception_file configuration parameter to set a default web page to print exceptions
+	- Some optimization in language selection manager
+	- Compatibility problem in yaml translation language file. Now translations MUST BE hashs of "t" key. Add t: to you previous yaml file and indent all keys.
+	- Add Puzzle::Exception to raise html errors.
+
 0.13 Tue Dec 18 11:38:16 CET 2012
 	- All Mason parameters are now configurable by httpd.conf
 	- Solved a bug in language files.

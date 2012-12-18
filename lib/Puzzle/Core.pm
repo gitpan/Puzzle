@@ -1,6 +1,6 @@
 package Puzzle::Core;
 
-our $VERSION = '0.05';
+our $VERSION = '0.14';
 
 use 5.008008;
 use strict;
@@ -23,7 +23,8 @@ __PACKAGE__->valid_params(
 	dbg						=> { isa 		=> 'Puzzle::Debug'} ,
 	args					=> { isa 		=> 'Puzzle::Args'} ,
 	post					=> { isa 		=> 'Puzzle::Post'} ,
-	sendmail			=> { isa 		=> 'Puzzle::Sendmail'} ,
+	sendmail				=> { isa 		=> 'Puzzle::Sendmail'} ,
+	exception				=> { isa 		=> 'Puzzle::Exception'} ,
 );
 
 __PACKAGE__->contained_objects (
@@ -36,12 +37,14 @@ __PACKAGE__->contained_objects (
 	post					=> 'Puzzle::Post',
 	page					=> {class => 'Puzzle::Page', delayed => 1},
 	sendmail			=> 'Puzzle::Sendmail',
+	exception				=> 'Puzzle::Exception',
 );
 
 
 # all new valid_params are read&write methods
 use HTML::Mason::MethodMaker(
-	read_only 		=> [ qw(cfg_path dbh tmpl lang_manager lang dbg args page sendmail post) ],
+	read_only 		=> [ qw(cfg_path dbh tmpl lang_manager lang dbg args page 
+		sendmail post exception) ],
 	read_write		=> [ 
 		[ cfg 			=> __PACKAGE__->validation_spec->{'cfg'} ],
 		[ session		=> __PACKAGE__->validation_spec->{'session'} ],
@@ -54,7 +57,7 @@ sub new {
 	# append parameters required for new contained objects loading them
 	# from YAML config file
 	my $cfgH		= LoadFile($_[1]);
-	my @params	= qw(frames base frame_bottom_file frame_left_file frame_top_file
+	my @params	= qw(frames base frame_bottom_file frame_left_file frame_top_file exception_file
 										frame_right_file gids login description keywords db
 										namespace debug cache auth_class traslation mail page);
 	foreach (@params){
@@ -108,7 +111,7 @@ sub process_request{
 	# configure language object
 	$self->{lang} = $self->lang_manager->get_lang_obj;
 	# and send to templates
-	$self->args->lang($self->lang_manager->lang_name);
+	$self->args->lang($self->lang_manager->lang);
 	$self->_login_logout;
 	$self->page->process;
 	if ($self->page->center->direct_output) {
