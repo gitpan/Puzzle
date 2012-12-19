@@ -1,11 +1,26 @@
 package Puzzle::Template;
 
-our $VERSION = '0.13';
+our $VERSION = '0.15';
 
-use HTML::Template::Pro::Extension;
+use base qw(Class::Container HTML::Template::Pro::Extension);
+
 use File::Spec;
+use Params::Validate qw(:types);
 
-use base qw(HTML::Template::Pro::Extension Class::Container);
+use Puzzle::Template::DBIxClassConverter;
+
+
+__PACKAGE__->valid_params(
+	dcc					=> { isa	=> 'Puzzle::Template::DBIxClassConverter'} ,
+);
+
+__PACKAGE__->contained_objects (
+	dcc		=> 'Puzzle::Template::DBIxClassConverter',
+);
+
+use HTML::Mason::MethodMaker(
+	read_only 		=> [ qw(dcc) ],
+);
 
 *print_template = \&print;
 
@@ -44,14 +59,21 @@ my %fields =
 sub new {
 	my $class = shift;
 	my %opt		= @_;
-	my $htmpl = $class->SUPER::new(%fields, functions => {
-																		date2human => \&_ext_date2human,
-																		datetime2human => \&_ext_datetime2human,
-																		isgid => \&_ext_isgid,
-																		s			=> \&_ext_s}
-																);
-  $htmpl->file($opt{file}) if (exists($opt{file}));	
-  $htmpl->cache($opt{cache}) if (exists($opt{cache}));	
+	# first call the Class::Container::new
+	my $htmpl = $class->SUPER::new();
+	# then create an initial HTML::Template::Pro::Extension object
+	my $htmpl1 = new HTML::Template::Pro::Extension(
+		%fields, functions => {
+								date2human => \&_ext_date2human,
+								datetime2human => \&_ext_datetime2human,
+								isgid => \&_ext_isgid,
+								s			=> \&_ext_s
+							}
+	);
+	# then merge the two objects and bless them to this class
+	$htmpl = bless {%$htmpl,%$htmpl1}, $class;
+	$htmpl->file($opt{file}) if (exists($opt{file}));	
+	$htmpl->cache($opt{cache}) if (exists($opt{cache}));	
 	return $htmpl;
 }
 

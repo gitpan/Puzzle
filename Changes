@@ -1,5 +1,9 @@
 Revision history for Perl extension Puzzle.
 
+0.15 Wed Dec 19 15:24:56 CET 2012
+    - Add a Template Converter to automatically include DBIx::Class resultset and rows in the Template.
+	- Solved a bug in Template.pm
+
 0.14 Tue dic 18 18:21:18 CET 2012
 	- Add exception_file configuration parameter to set a default web page to print exceptions
 	- Some optimization in language selection manager

@@ -11,6 +11,7 @@ lib/Puzzle.pm
 lib/Puzzle/Args.pm   
 lib/Puzzle/Config.pm  
 lib/Puzzle/DBI.pm  
+lib/Puzzle/Exception.pm  
 lib/Puzzle/Debug.pm  
 lib/Puzzle/Post.pm    
 lib/Puzzle/MasonHandler.pm
@@ -22,6 +23,7 @@ lib/Puzzle/Core.pm
 lib/Puzzle/Page.pm    
 lib/Puzzle/Request.pm    
 lib/Puzzle/Template.pm
+lib/Puzzle/Template/DBIxClassConverter.pm
 lib/Puzzle/DBIx/Column.pm
 lib/Puzzle/DBIx/Iterator.pm
 lib/Puzzle/DBIx/sysMetaschema.pm
