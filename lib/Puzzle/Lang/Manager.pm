@@ -1,6 +1,6 @@
 package Puzzle::Lang::Manager;
 
-our $VERSION = '0.14';
+our $VERSION = '0.16';
 
 use strict;
 no strict 'refs';
@@ -22,7 +22,6 @@ sub get_lang_obj {
 	# select language by session or browser and returnà
 	# the class istance related
 	my $self		= shift;
-	my $obj;
 	my $obj         = 'Puzzle::Lang::Base';
 	if (defined $self->container->cfg->traslation) {
 		if (exists $self->container->cfg->traslation->{$self->lang}) {

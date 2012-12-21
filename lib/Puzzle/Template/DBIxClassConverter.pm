@@ -1,6 +1,6 @@
 package Puzzle::Template::DBIxClassConverter;
 
-our $VERSION = '0.15';
+our $VERSION = '0.16';
 
 use base 'Class::Container';
 
@@ -10,17 +10,13 @@ sub resultset {
 
 	my $tblName	= $rs->result_source->name;
 
-	my @all		= $rs->all;
 	my @ret;
 
-	foreach my $rec (@all) {
-		my %rrow	= $rec->get_columns;
-		my %row 	= %rrow;
-		$row{"$tblName.$_"} = $rrow{$_} foreach(keys %rrow);
-		push @ret,\%row;
+	while ($rec = $rs->next) {
+		push @ret,$self->row($rec);
 	}
 
-	return \@ret;
+	return {$tblName => \@ret};
 }
 
 sub row {

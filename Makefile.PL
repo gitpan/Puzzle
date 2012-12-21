@@ -17,13 +17,14 @@ my %prereq = (
 				'Time::HiRes'						=> 0,
 				'HTML::Entities'					=> 0,
 				'File::Spec'						=> 0,
-				'DBIx::Class::Schema'		=> 0,
+				'DBIx::Class::Schema'				=> 0,
 				'DBIx::Class::Schema::Loader'		=> 0,
 				'Apache::DBI'						=> 0,
-				'Apache::Session::MySQL'=> 0,
-				'I18N::AcceptLanguage'	=> 0,
-				'HTTP::BrowserDetect'	=> 0,
-				'mod_perl2' 			=> 1.999022,
+				'Scalar::Util'						=> 0,
+				'Apache::Session::MySQL'			=> 0,
+				'I18N::AcceptLanguage'				=> 0,
+				'HTTP::BrowserDetect'				=> 0,
+				'mod_perl2' 						=> 1.999022,
 );
 
 my $mod_version;

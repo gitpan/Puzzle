@@ -34,8 +34,9 @@ requires:
   JSON::Any: 0
   Mail::Sendmail: 0
   Params::Validate: 0
+  Scalar::Util: 0
   Time::HiRes: 0
   XML::Simple: 0
   YAML: 0
   mod_perl2: 1.999022
-version: 0.15
+version: 0.16

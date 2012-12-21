@@ -1,5 +1,12 @@
 Revision history for Perl extension Puzzle.
 
+0.16 Fri Dec 21 12:02:43 CET 2012
+    - Some optimization in building parameters for template
+	- Puzzle::Args::set now accept only permitted structure (scalar, hashref,...)
+	- Puzzle::Args::set now accept DBIx::Class::Resultset and DBIx::Class::Row using Template converter to automatically convert it in a template complatible structure
+	- Add a return 0 to raise exception function
+	- Some optimization in Puzzle::Template::DBIxClassConverter
+
 0.15 Wed Dec 19 15:24:56 CET 2012
     - Add a Template Converter to automatically include DBIx::Class resultset and rows in the Template.
 	- Solved a bug in Template.pm

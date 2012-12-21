@@ -1,6 +1,6 @@
 package Puzzle::Exception;
 
-our $VERSION = '0.14';
+our $VERSION = '0.16';
 
 use base 'Class::Container';
 use File::Spec;
@@ -37,6 +37,8 @@ sub raise {
 
 	$self->container->args->set(errorcode => $error_code);
 	print $tmpl->html(undef,$error_path);
+	# usefull to return your function with 0 if errors
+	return 0;
 }
 
 1;

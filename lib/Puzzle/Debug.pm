@@ -1,6 +1,6 @@
 package Puzzle::Debug;
 
-our $VERSION = '0.14';
+our $VERSION = '0.16';
 
 use base 'Class::Container';
 
@@ -62,8 +62,6 @@ sub internal_objects_dump_for_html {
   return %debug
 }
 
-
-# TO DO : RECURSIVE AND REMOVE FROM DEBUG. OPTIMIZATION
 sub all_mason_args {
 	# ritorna tutti i parametri globali
 	# alcuni normalizzati
@@ -71,9 +69,9 @@ sub all_mason_args {
 	my $puzzle	= $self->container;
 	return { 
 			%{$puzzle->cfg->as_hashref}, 
-			%{&_normalize_for_tmpl(&_normalize_for_tmpl(&_normalize_for_tmpl($puzzle->session->internal_session)))},
-	  		%{&_normalize_for_tmpl($puzzle->post->args)},
-			%{&_normalize_for_tmpl(&_normalize_for_tmpl($puzzle->args->args))}, 
+			%{&_struct2args($puzzle->session->internal_session)},
+	  		%{&_struct2args($puzzle->post->args)},
+			%{&_struct2args($puzzle->args->args)}, 
 			title => $puzzle->page->title,
 	};
 }
@@ -83,42 +81,48 @@ sub all_mason_args_for_debug {
 	# alcuni normalizzati
 	my $self  = shift;
 	return { 
-		conf => $self->container->cfg,
-		session =>&_normalize_for_tmpl(&_normalize_for_tmpl(&_normalize_for_tmpl($self->container->session->internal_session))),
-    post 	=> &_normalize_for_tmpl($self->container->post->args) ,
-		args 	=> &_normalize_for_tmpl(&_normalize_for_tmpl($self->container->args->args)),
+		conf 	=> $self->container->cfg,
+		session => &_struct2args($self->container->session->internal_session),
+    	post 	=> &_struct2args($self->container->post->args) ,
+		args 	=> &_struct2args($self->container->args->args),
 		env		=> 	\%ENV
 	};
 }
 
-sub _normalize_for_tmpl {
-  # questa funzione prende un hashref e lo aggiusta eventualmente
-  # per essere compatibile con quello che si aspetta HTML::Template
-  my $params = shift;
-  my %as = %{$params};
-  foreach (keys %as) {
-    # gestisco dei casi particolari
-    if (ref($as{$_}) eq 'ARRAY' && defined($as{$_}->[0])
-      && ref($as{$_}->[0]) eq '') {
-      # HTML::Template si aspetta in questo caso degli hashref come
-      # elementi ma se, come nel caso di form HTML con elementi con
-      # name uguali, si ha un ARRAY di scalar allora lo devo gestire
-      $as{"$_.array.count"} = scalar(@{$as{$_}});
-      for (my $i=0;$i<$as{"$_.array.count"};$i++) {
-        $as{"$_.array.$i"} = $as{$_}->[$i];
-      }
-      delete $as{$_};
-    } elsif (ref($as{$_}) eq 'HASH') {
-			# QUESTA FUNZIONE VA RESA RICORSIVA
-			while (my ($k,$v) = each %{$as{$_}}) {
-				$as{"$_.$k"} = $v;
-			}
-			delete $as{$_};
-		}
-  }
-	return \%as;
+sub _struct2args {
+	my $struct = shift;
+	my $buffer = {};
+	&_struct2argsrec(\$buffer,$struct,'');
+	return $buffer;
 }
 
+sub _struct2argsrec {
+	my $buffer		= shift;
+	my $struct	 	= shift;
+	my $key			= shift;
+	if (ref($struct) eq 'HASH') {
+		$key .= '.' unless ($key eq '');
+		foreach (keys %$struct) {
+			&_struct2argsrec($buffer,$struct->{$_},"$key$_");
+		}
+	} elsif (ref($struct) eq 'ARRAY') {
+		if (defined($struct->[0]) && ref($struct->[0]) eq '') {
+			# it's not an array of hashref
+			$$buffer->{"$key.array.count"} = scalar(@$struct);
+			$key = "$key.array.";
+			for (my $i=0;$i<scalar(@$struct);$i++) {
+				&_struct2argsrec($buffer,$struct->[$i],"$key$i");
+			}
+		} else {
+			$$buffer->{$key} = $struct;
+		}
+	} elsif (ref($struct) eq '') {
+		$$buffer->{$key} = $struct;
+	} else {
+		die "_struct2argsrec: Unknown structure for key $key: " . ref($struct) .
+		Data::Dumper::Dumper($struct);
+	}
+}
 
 sub debug_html_code {
 	return <<EOF;

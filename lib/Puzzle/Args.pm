@@ -1,10 +1,11 @@
 package Puzzle::Args;
 
-our $VERSION = '0.02';
+our $VERSION = '0.16';
 
 use Params::Validate qw(:types);;
 
 use base 'Class::Container';
+use Scalar::Util "blessed";
 
 use HTML::Mason::MethodMaker(
 	read_only 		=> [ qw(args) ],
@@ -36,13 +37,22 @@ sub get {
 	return $self->{args}->{$key};
 }
 
+
 sub set {
 	my $self	= shift;
 	my $key		= shift;
 	if (ref($key) eq 'HASH') {
 		&__push_hashref($self->{args}, $key);
-	} else {
+	} elsif (ref($key) eq '') {
 		$self->{args}->{$key} = shift;
+	} elsif (blessed($key) && $key->isa('DBIx::Class::ResultSet')) {
+		my $array 	= $self->container->tmpl->dcc->resultset($key);
+		$self->set($array);
+	} elsif (blessed($key) && $key->isa('DBIx::Class::Row')) {
+		$hashref	= $self->container->tmpl->dcc->row($key);
+		$self->set($hashref);
+	} else {
+		die "Unknown structure to set: " . ref($key) . ' - ' . Data::Dumper::Dumper($key);
 	}
 	return $self->{args}->{$key};
 }
