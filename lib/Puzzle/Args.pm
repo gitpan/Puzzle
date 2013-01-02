@@ -1,6 +1,6 @@
 package Puzzle::Args;
 
-our $VERSION = '0.16';
+our $VERSION = '0.17';
 
 use Params::Validate qw(:types);;
 
@@ -44,7 +44,13 @@ sub set {
 	if (ref($key) eq 'HASH') {
 		&__push_hashref($self->{args}, $key);
 	} elsif (ref($key) eq '') {
-		$self->{args}->{$key} = shift;
+		my $value	= shift;
+		if (blessed($value) && $value->isa('DBIx::Class::ResultSet')) {
+			my $array 	= $self->container->tmpl->dcc->resultset($value,$key);
+			$self->set($array);
+		} else {
+			$self->{args}->{$key} = $value;
+		}
 	} elsif (blessed($key) && $key->isa('DBIx::Class::ResultSet')) {
 		my $array 	= $self->container->tmpl->dcc->resultset($key);
 		$self->set($array);

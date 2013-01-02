@@ -1,6 +1,6 @@
 package Puzzle::Block;
 
-our $VERSION = '0.11';
+our $VERSION = '0.17';
 
 use Params::Validate qw(:types);
 use base 'Class::Container';
@@ -37,7 +37,7 @@ sub process {
 	my $puzzle	= $self->container->container;
 	my $tmpl		= $puzzle->tmpl;
 	unless ($self->comp) {
-		$self->body("File <b>" . $self->comp_path . "</b> non trovato");
+		$self->body("Unable to find <b>" . $self->comp_path . "</b> file");
 		return;
 	}
 	# voglio anche l'header
@@ -115,12 +115,16 @@ sub process_as_login {
 	my $puzzle	= $self->container->container;
 	my $tmpl		= $puzzle->tmpl;
 	unless ($self->comp) {
-		$self->body("File di login <b>" . $mtr::puzzle->cfg->login . "</b> non trovato");
+		#$self->body("Login file in <b>" . $puzzle->cfg->login . "</b> not found");
+		$puzzle->args->set({'exception.cod' => "Login file not found",
+			'exception.descr' => "Login file in <b>" . $puzzle->cfg->login . 
+			"</b> not found"});
+		$puzzle->exception->print;
 		return;
 	}
 	$tmpl->autoDeleteHeader(0);
 	$puzzle->args->page($ENV{SCRIPT_NAME});
-	$puzzle->args->group(join(' oppure ',@{$puzzle->cfg->gids} ));
+	$puzzle->args->group(join(' or ',@{$puzzle->cfg->gids} ));
 	$self->html($self->get_html);
   # rimuovo l'header
   $tmpl->autoDeleteHeader(1);

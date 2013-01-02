@@ -39,4 +39,4 @@ requires:
   XML::Simple: 0
   YAML: 0
   mod_perl2: 1.999022
-version: 0.16
+version: 0.17
