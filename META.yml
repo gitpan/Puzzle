@@ -35,8 +35,9 @@ requires:
   Mail::Sendmail: 0
   Params::Validate: 0
   Scalar::Util: 0
+  Text::CSV::Slurp: 0
   Time::HiRes: 0
   XML::Simple: 0
   YAML: 0
   mod_perl2: 1.999022
-version: 0.17
+version: 0.18

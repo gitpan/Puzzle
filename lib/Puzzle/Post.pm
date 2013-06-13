@@ -1,6 +1,6 @@
 package Puzzle::Post;
 
-our $VERSION = '0.02';
+our $VERSION = '0.18';
 
 use Params::Validate qw(:types);;
 
@@ -45,6 +45,11 @@ sub _set {
 		$self->{args}->{$key} = shift;
 	}
 	return $self->args->{$key};
+}
+
+sub clear {
+	my $self	= shift;
+	$self->{args} = {};
 }
 
 sub __push_hashref {

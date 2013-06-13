@@ -32,6 +32,7 @@ sub process {
 	my $m					= $puzzle->_mason;
 #	$self->container->post->_set({$self->container->_mason->request_args});
 	my $nextComp 	= $m->fetch_next;
+	#$puzzle->log->debug(( caller(0) )[3] . ": component " . $nextComp->path);
 	if (eval {$nextComp->attr('gid')} &&
 		$self->container->cfg->gids($nextComp->attr('gids')) &&
 		!$puzzle->session->auth->check) {
@@ -62,6 +63,7 @@ sub process {
 	}
 	if ($puzzle->cfg->frames && 
 		$puzzle->args->print ne '1' && $puzzle->cfg->base) {
+		#@$puzzle->log->debug(( caller(0) )[3] . ": Print page with frames");
 		foreach (qw/top left right bottom/) {
 			if ($puzzle->cfg->{"frame_${_}_file"} ne '') {
 				$self->$_->comp_path($puzzle->cfg->{"frame_${_}_file"});
@@ -69,6 +71,9 @@ sub process {
 			}
 		}
 	} else {
+		#$puzzle->log->debug(( caller(0) )[3] . ": Set page without frames because: cfg->frames is " .
+		#	$puzzle->cfg->frames . " and args->print is " . $puzzle->args->print . " and cfg->base is " .
+		#	$puzzle->cfg->base);
 		$self->center->{direct_output} = 1;
 	}
 }

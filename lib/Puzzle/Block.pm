@@ -36,6 +36,7 @@ sub process {
 	my $self		= shift;
 	my $puzzle	= $self->container->container;
 	my $tmpl		= $puzzle->tmpl;
+	$self->reset;
 	unless ($self->comp) {
 		$self->body("Unable to find <b>" . $self->comp_path . "</b> file");
 		return;
@@ -60,6 +61,7 @@ sub process_as_center {
 	my $puzzle	= $self->container->container;
 	my $tmpl		= $puzzle->tmpl;
 	my $m				= $puzzle->_mason;
+	$self->reset;
 	# recupero l'intero blocco html in vari modi
 	$tmpl->autoDeleteHeader(0);
 	# ottengo, in qualche modo, la pagina html con il body
@@ -204,4 +206,11 @@ sub get_html {
    }
 	return $ret;
 }
+
+sub reset {
+	my $s	= shift;
+	$s->{direct_output} = 0;
+	$s->{isa_error} = 0;
+}
+
 1;

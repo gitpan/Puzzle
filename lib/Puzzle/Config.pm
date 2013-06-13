@@ -1,6 +1,6 @@
 package Puzzle::Config;
 
-our $VERSION = '0.14';
+our $VERSION = '0.18';
 
 
 use Params::Validate qw(:types);;
@@ -11,6 +11,7 @@ BEGIN {
 
 	__PACKAGE__->valid_params(
 		debug		      => { parse => 'boolean', default => 0, type => BOOLEAN},
+		debug_path	      => { parse => 'string', default => undef, type => SCALAR | UNDEF},
 		cache		      => { parse => 'boolean', default => 0, type => BOOLEAN},
 		frames       => { parse => 'boolean', default => 0, type => BOOLEAN},
 		frame_top_file     => { parse => 'string',  type => SCALAR | UNDEF, default => undef },

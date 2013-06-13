@@ -1,6 +1,6 @@
 package Puzzle::Core;
 
-our $VERSION = '0.14';
+our $VERSION = '0.18';
 
 use 5.008008;
 use strict;
@@ -9,34 +9,39 @@ use warnings;
 use YAML qw(LoadFile);
 use Puzzle::Config;
 use Puzzle::DBI;
+use Puzzle::Null;
 use HTML::Mason::Request;
+use Log::Any;
+use Log::Any::Adapter;
 
 use Params::Validate qw(:types);
 use base 'Class::Container';
 
 __PACKAGE__->valid_params(
-	cfg_path			=> { parse 	=> 'string', type => SCALAR},
-	session				=> { isa 		=> 'Puzzle::Session', optional => 1 },
-	lang_manager	=> { isa 		=> 'Puzzle::Lang::Manager' },
+	cfg_path				=> { parse 	=> 'string', type => SCALAR},
+	session					=> { isa 		=> 'Puzzle::Session', optional => 1 },
+	lang_manager			=> { isa 		=> 'Puzzle::Lang::Manager' },
 	cfg						=> { isa 		=> 'Puzzle::Config'} ,
 	tmpl					=> { isa 		=> 'Puzzle::Template'} ,
 	dbg						=> { isa 		=> 'Puzzle::Debug'} ,
 	args					=> { isa 		=> 'Puzzle::Args'} ,
 	post					=> { isa 		=> 'Puzzle::Post'} ,
 	sendmail				=> { isa 		=> 'Puzzle::Sendmail'} ,
+	crud					=> { isa 		=> 'Puzzle::DBIx::Crud'} ,
 	exception				=> { isa 		=> 'Puzzle::Exception'} ,
 );
 
 __PACKAGE__->contained_objects (
-	session    		=> {class => 'Puzzle::Session', delayed => 1},
-	lang_manager	=> 'Puzzle::Lang::Manager',
+	session    				=> {class => 'Puzzle::Session', delayed => 1},
+	lang_manager			=> 'Puzzle::Lang::Manager',
 	cfg						=> 'Puzzle::Config',
 	tmpl					=> 'Puzzle::Template',
 	dbg						=> 'Puzzle::Debug',
 	args					=> 'Puzzle::Args',
 	post					=> 'Puzzle::Post',
 	page					=> {class => 'Puzzle::Page', delayed => 1},
-	sendmail			=> 'Puzzle::Sendmail',
+	sendmail				=> 'Puzzle::Sendmail',
+	crud					=> 'Puzzle::DBIx::Crud',
 	exception				=> 'Puzzle::Exception',
 );
 
@@ -44,13 +49,15 @@ __PACKAGE__->contained_objects (
 # all new valid_params are read&write methods
 use HTML::Mason::MethodMaker(
 	read_only 		=> [ qw(cfg_path dbh tmpl lang_manager lang dbg args page 
-		sendmail post exception) ],
+		sendmail post exception crud) ],
 	read_write		=> [ 
 		[ cfg 			=> __PACKAGE__->validation_spec->{'cfg'} ],
 		[ session		=> __PACKAGE__->validation_spec->{'session'} ],
 		[ error			=> { parse 	=> 'string', type => SCALAR} ],
 	]
 );
+
+*db = \&dbh;
 
 sub new {
 	my $class 	= shift;
@@ -59,7 +66,7 @@ sub new {
 	my $cfgH		= LoadFile($_[1]);
 	my @params	= qw(frames base frame_bottom_file frame_left_file frame_top_file exception_file
 										frame_right_file gids login description keywords db
-										namespace debug cache auth_class traslation mail page);
+										namespace debug debug_path cache auth_class traslation mail page);
 	foreach (@params){
 		push @_, ($_, $cfgH->{$_}) if (exists $cfgH->{$_});
 	}
@@ -72,7 +79,13 @@ sub new {
 
 sub _init {
 	my $self	= shift;
-	
+
+	if ($self->cfg->debug_path) {
+		Log::Any::Adapter->set(File => $self->cfg->debug_path);
+		$self->{log} = Log::Any->get_logger();
+	} else {
+		$self->{log} = Puzzle::Null->new;
+	}
 	# inizializzazione classi delayed
 	my $center_class = 'Puzzle::Block';
 	if ($self->cfg->page) {
@@ -102,7 +115,12 @@ sub _autohandler_once {
 sub process_request{
 	my $self	= shift;
 	my $html;
+
+	local $Puzzle::Core::instance = $self;
+
 	&_mason->apache_req->no_cache(1);
+	$self->post->clear;
+	$self->args->clear;
 	$self->post->_set({$self->_mason->request_args});
 	$self->session->load;
 	# enable always debug for debug users
@@ -115,8 +133,10 @@ sub process_request{
 	$self->_login_logout;
 	$self->page->process;
 	if ($self->page->center->direct_output) {
+		#$self->log->debug(( caller(0) )[3] . ": Print page WITHOUT frames");
 		$html	= $self->page->center->html;
 	} else {
+		#$self->log->debug(( caller(0) )[3] . ": Print page with frames");
 		my $args = {
 			frame_bottom		=> $self->page->bottom->body,
 			frame_left			=> $self->page->left->body,
@@ -148,6 +168,11 @@ sub _login_logout {
 
 sub _mason  {
 	return HTML::Mason::Request->instance();
+}
+
+sub log {
+	my $s	= shift;
+	return $s->{log};
 }
 
 

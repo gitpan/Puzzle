@@ -1,21 +1,21 @@
 package Puzzle::Template;
 
-our $VERSION = '0.15';
+our $VERSION = '0.18';
 
 use base qw(Class::Container HTML::Template::Pro::Extension);
 
 use File::Spec;
 use Params::Validate qw(:types);
 
-use Puzzle::Template::DBIxClassConverter;
+use Puzzle::DBIx::ClassConverter;
 
 
 __PACKAGE__->valid_params(
-	dcc					=> { isa	=> 'Puzzle::Template::DBIxClassConverter'} ,
+	dcc					=> { isa	=> 'Puzzle::DBIx::ClassConverter'} ,
 );
 
 __PACKAGE__->contained_objects (
-	dcc		=> 'Puzzle::Template::DBIxClassConverter',
+	dcc		=> 'Puzzle::DBIx::ClassConverter',
 );
 
 use HTML::Mason::MethodMaker(
@@ -141,6 +141,7 @@ use Switch;
 use Data::Dumper;
 use JSON::Any;
 use XML::Simple;
+use Text::CSV::Slurp;
 
 sub printct {
 		print $_[0]->sprintct($_[1], $_[2]);
@@ -160,6 +161,7 @@ sub sprintct {
 		my $pl2text = sub { return Data::Dumper::Dumper($_[0]) };
 		my $pl2json = sub { my $obj =  JSON::Any->new; return $obj->objToJson($_[0]) };
 		my $pl2xml 	= sub { return XMLout($_[0]) };
+		my $pl2csv  = sub { return Text::CSV::Slurp->create(input => $_[0],sep_char => ';') };
 		my $pl2else = sub { return Data::Dumper::Dumper($_[0]) };
 
 		my $fc;
@@ -167,9 +169,10 @@ sub sprintct {
 		switch ($ct) {
 			case /json/					{ $fc = $pl2json}
 			case /xml/ 					{ $fc = $pl2xml}
-		  case 'text/plain' 	{ $fc = $pl2text}
-		  case 'text/html' 		{ $fc = $pl2html}
-		  else 								{ $fc = $pl2else}
+			case 'text/plain' 			{ $fc = $pl2text}
+			case 'text/html' 			{ $fc = $pl2html}
+			case /excel/				{ $fc = $pl2csv}
+			else 						{ $fc = $pl2else}
 		}
 
 		return &$fc($pl);
@@ -340,12 +343,12 @@ sub _ext_datetime2human {
 }
 
 sub _ext_isgid {
-	return $self->container->session->user->isGid(shift);
+	return Puzzle->instance->session->user->isGid(shift);
 }
 
 
 sub _ext_s {
-	return $self->container->lang->s(shift);
+	return Puzzle->instance->lang->s(shift);
 }
 
 sub _split_date {
@@ -368,7 +371,21 @@ sub _split_date {
 	@ret = map(length($_) == 1 ? "0$_" :  $_,@ret);
 	return @ret;
 }
-	
+
+sub combo_selected {
+	my $s			= shift;
+	my $arraylist	= shift;
+	my $keyname		= shift;
+	my $vselected	= shift;
+
+	LOOP: foreach (@$arraylist) {
+		if ($_->{$keyname} eq $vselected) {
+			$_->{selected} = 'selected';
+			last LOOP;
+		}
+	}
+}
+
 1;
 
 # vim: set ts=2:

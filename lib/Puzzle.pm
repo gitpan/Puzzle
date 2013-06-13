@@ -1,8 +1,12 @@
 package Puzzle;
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 
 use base 'Puzzle::Core';
+
+sub instance {
+	return $Puzzle::Core::instance;
+}
 
 1;
 
