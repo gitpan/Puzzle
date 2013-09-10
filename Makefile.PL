@@ -25,6 +25,7 @@ my %prereq = (
 				'I18N::AcceptLanguage'				=> 0,
 				'HTTP::BrowserDetect'				=> 0,
 				'Text::CSV::Slurp'					=> 0,
+				'Log::Any::Adapter'					=> 0,
 				'mod_perl2' 						=> 1.999022,
 );
 

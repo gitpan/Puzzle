@@ -1,6 +1,6 @@
 package Puzzle::Args;
 
-our $VERSION = '0.18';
+our $VERSION = '0.19';
 
 use Params::Validate qw(:types);;
 
@@ -41,23 +41,26 @@ sub get {
 sub set {
 	my $self	= shift;
 	my $key		= shift;
+	my $value	= shift;
+	my $params	= shift;
+	die "Starting from 0.19 the fourth arg must be an hashref of params." .
+		" Replace relship with {relship => ...}" if ($params && ref($params) ne 'HASH');
 	if (ref($key) eq 'HASH') {
-		&__push_hashref($self->{args}, $key);
+		&__push_hashref($self->{args}, $key, $params->{filter});
 	} elsif (ref($key) eq '') {
-		my $value	= shift;
 		if (blessed($value) && $value->isa('DBIx::Class::ResultSet')) {
-			my $relship = shift || {};
+			my $relship = $params->{relship} ? $params->{relship} : {};
 			my $array 	= $self->container->tmpl->dcc->resultset($value,$key,$relship);
 			$self->set($array);
 		} else {
 			$self->{args}->{$key} = $value;
 		}
 	} elsif (blessed($key) && $key->isa('DBIx::Class::ResultSet')) {
-		my $relship = shift || {};
+		my $relship = $params->{relship} ? $params->{relship} : {};
 		my $array 	= $self->container->tmpl->dcc->resultset($key,undef,$relship);
 		$self->set($array);
 	} elsif (blessed($key) && $key->isa('DBIx::Class::Row')) {
-		my $relship = shift || {};
+		my $relship = $params->{relship} ? $params->{relship} : {};
 		$hashref	= $self->container->tmpl->dcc->row($key,$relship);
 		$self->set($hashref);
 	} else {
@@ -75,8 +78,29 @@ sub __push_hashref {
 	# da verificare cosa e' piu' veloce
 	my $dst	= shift;
 	my $src	= shift;
-	my (@cols) = keys %$src;
-	@{$dst}{@cols} = @{$src}{@cols};
+	my $flt	= shift;
+	foreach (keys %$src) {
+		$dst->{$_} = &__call_filter($flt,$src,$_,$src->{$_},0);
+	}
+}
+
+sub __call_filter {
+	my $flt	= shift;
+	my $src	= shift;
+	my $key = shift;
+	my $val	= shift;
+	my $lev	= shift;
+	return $val unless ($flt);
+	if (ref($val) eq 'HASH') {
+		while (my ($k,$v) = each %$val) {
+			$val->{$k} = &__call_filter($flt,$val,$k,$v,$lev+1);
+		}
+	} elsif (ref($val) eq 'ARRAY') {
+		for (my $i=0;$i<scalar(@$val); $i++) {
+			$val->[$i] = &__call_filter($flt,$val,$i,$val->[$i],$lev+1);
+		}
+	}
+	return &$flt($src,$key,$val,$lev);
 }
 
 

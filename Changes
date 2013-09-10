@@ -1,5 +1,9 @@
 Revision history for Perl extension Puzzle.
 
+0.19 Tue Sep 10 17:06:24 CEST 2013
+	- Add dependence for Log::Any::Adapter
+	- BREAK COMPATIBILITY. In $puzzle->args->set(..) the fourth arg must be an hashref of params. Replace relship with {relship => ...}
+
 0.18 Thu Jun 13 13:20:01 CEST 2013
 	- Add support for export data structure in CSV/Excel
 	- Correct a bug that print pages without frames
