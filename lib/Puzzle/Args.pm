@@ -1,6 +1,6 @@
 package Puzzle::Args;
 
-our $VERSION = '0.19';
+our $VERSION = '0.20';
 
 use Params::Validate qw(:types);;
 
@@ -51,18 +51,18 @@ sub set {
 		if (blessed($value) && $value->isa('DBIx::Class::ResultSet')) {
 			my $relship = $params->{relship} ? $params->{relship} : {};
 			my $array 	= $self->container->tmpl->dcc->resultset($value,$key,$relship);
-			$self->set($array);
+			$self->set($array,undef,$params);
 		} else {
-			$self->{args}->{$key} = $value;
+			$self->{args}->{$key} = &__call_filter($flt,$value,$key,$value,0);
 		}
 	} elsif (blessed($key) && $key->isa('DBIx::Class::ResultSet')) {
 		my $relship = $params->{relship} ? $params->{relship} : {};
 		my $array 	= $self->container->tmpl->dcc->resultset($key,undef,$relship);
-		$self->set($array);
+		$self->set($array,undef,$params);
 	} elsif (blessed($key) && $key->isa('DBIx::Class::Row')) {
 		my $relship = $params->{relship} ? $params->{relship} : {};
 		$hashref	= $self->container->tmpl->dcc->row($key,$relship);
-		$self->set($hashref);
+		$self->set($hashref,undef,$params);
 	} else {
 		die "Unknown structure to set: " . ref($key) . ' - ' . Data::Dumper::Dumper($key);
 	}

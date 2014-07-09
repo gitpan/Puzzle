@@ -1,6 +1,6 @@
 package Puzzle::DBIx::Crud;
 
-our $VERSION = '0.18';
+our $VERSION = '0.20';
 
 use base 'Class::Container';
 
@@ -40,7 +40,7 @@ sub op_r {
 
 	$s->_call_callback($cbs,"defaults", $rr, $opt);
 	$s->_call_callback($cbs,"pre_r", $rr, $opt);
-	$s->puzzle->args->set($rr->{rec},$rr->{rel});
+	$s->puzzle->args->set($rr->{rec},undef,{relship => $rr->{rel}});
 	$s->_call_callback($cbs,"post_r", $rr, $opt);
 	$s->puzzle->args->op($rr->{op} ||'u');
 }
@@ -92,10 +92,10 @@ sub op_u {
 	my $rec		= $rr->{rec};
 	my @columns = $rec->result_source->columns;
 	my %rec_updates;
-	my $args	= $puzzle->post->{args};
+	my $args	= $puzzle->post->args;
 	foreach (@columns) {
-		if (exists $args{$_}) {
-			$rec_updates{$_} = $args{$_};
+		if (exists $args->{$_}) {
+			$rec_updates{$_} = $args->{$_};
 		}
 	}
 
